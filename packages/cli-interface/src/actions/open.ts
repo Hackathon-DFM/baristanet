@@ -66,7 +66,7 @@ export const openIntent = async () => {
     outputToken: OUTTOKEN_ADDRESS as Address,
     amountIn: BigInt(parseEther('100')),
     amountOut: BigInt(parseEther('200')),
-    senderNonce: BigInt('12'),
+    senderNonce: BigInt('17'),
     originDomain: 421614,
     destinationDomain: 84532,
     destinationSettler: DESTINATION_ROUTER_ADDRESS as Address,

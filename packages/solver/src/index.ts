@@ -1,21 +1,20 @@
-import { baseSepolia } from 'viem/chains';
+import { arbitrumSepolia } from 'viem/chains';
 import { SECRET_MESSAGE } from './config';
-import { todoListListener, listener } from './listener';
-import { solver } from './solver';
-import { AbiEvent, createPublicClient, http, PublicClient } from 'viem';
+import { openIntentListener } from './listener';
+import { createPublicClient, http } from 'viem';
+import { openIntentSolver } from './solver';
 
 async function main() {
   console.log(SECRET_MESSAGE);
-  const publicClient = createPublicClient({
-    chain: baseSepolia,
-    transport: http(),
+  openIntentListener({
+    publicClient: createPublicClient({
+      chain: arbitrumSepolia,
+      transport: http(),
+    }),
+    contractAddress: '0x576ba9ea0dc68f8b18ff8443a1d0aa1425459ef5',
+    solver: openIntentSolver,
+    blockNumber: 142851806n,
   });
-  todoListListener({
-    publicClient: publicClient as PublicClient,
-    contractAddress: '0xfca3819dd85017a11aa23ed08f57cd31db8e96cd',
-  });
-  // listener({ msg: 'hearing things', ms: 1000, solver });
-  // listener({ msg: 'hated visionary', ms: 2000, solver });
 }
 
 main();
