@@ -40,7 +40,6 @@ export async function openIntentListener({
   } else {
     fromBlock = currentBlockNumber;
   }
-  // let fromBlock = 142837822n;
   const batch = 1000n;
   while (true) {
     if (fromBlock + batch > currentBlockNumber) {
