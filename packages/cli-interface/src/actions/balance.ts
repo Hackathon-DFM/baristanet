@@ -91,6 +91,4 @@ export const actorBalance = async () => {
   ];
 
   console.table(balanceTable);
-
 };
-

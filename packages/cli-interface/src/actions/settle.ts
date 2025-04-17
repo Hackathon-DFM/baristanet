@@ -1,6 +1,4 @@
-import {
-  ask,
-} from '../utils';
+import { ask } from '../utils';
 import {
   Address,
   createPublicClient,
@@ -10,10 +8,7 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { arbitrumSepolia, baseSepolia } from 'viem/chains';
-import {
-  DESTINATION_ROUTER_ADDRESS,
-  SOLVER_PK,
-} from '../config';
+import { DESTINATION_ROUTER_ADDRESS, SOLVER_PK } from '../config';
 import routerAbi from '../abis/Hyperlane7683.json';
 
 const walletAccount = privateKeyToAccount(SOLVER_PK as Address);
@@ -59,4 +54,3 @@ export const settleIntent = async () => {
   });
   console.log('txHash: https://explorer.hyperlane.xyz/?search=' + txHash);
 };
-

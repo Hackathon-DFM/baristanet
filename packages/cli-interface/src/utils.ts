@@ -7,6 +7,7 @@ import {
   pad,
   numberToHex,
   Address,
+  stringToHex,
 } from 'viem';
 import readline from 'readline';
 import fs from 'fs/promises';
@@ -59,6 +60,25 @@ export function bytes32ToAddress(bytes32: Address): Address {
 }
 
 // ████ ERC7683 ████████████████████████████████████████████████████████████████
+
+export type OrderStatus = 'FILLED' | 'OPENED' | 'SETTLED' | 'UNKNOWN';
+export const hexToOrderStatus = (orderStatusHex: Address): OrderStatus => {
+  const orderStatusMap = {
+    OPENED: stringToHex('OPENED', { size: 32 }),
+    FILLED: stringToHex('FILLED', { size: 32 }),
+    SETTLED: stringToHex('SETTLED', { size: 32 }),
+  };
+
+  let orderStatus: OrderStatus = 'UNKNOWN';
+  if (orderStatusHex === orderStatusMap.OPENED) {
+    orderStatus = 'OPENED';
+  } else if (orderStatusHex === orderStatusMap.FILLED) {
+    orderStatus = 'FILLED';
+  } else if (orderStatusHex === orderStatusMap.SETTLED) {
+    orderStatus = 'SETTLED';
+  }
+  return orderStatus;
+};
 
 export type OnchainCrossChainOrder = {
   fillDeadline: number;

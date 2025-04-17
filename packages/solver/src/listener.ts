@@ -2,7 +2,7 @@ import { Address, PublicClient, stringToHex } from 'viem';
 import todoListAbi from './abis/TodoList.json';
 import { openEventAbi } from './types';
 import { SolverParams } from './solver';
-import { bytes32ToAddress } from './utils';
+import { bytes32ToAddress, sleep } from './utils';
 import routerAbi from './abis/Hyperlane7683.json';
 
 type ListenerParams = {
@@ -31,6 +31,7 @@ export async function openIntentListener({
   solver,
 }: ClientListenerParams) {
   let currentBlockNumber = await publicClient.getBlockNumber();
+  let chainId = await publicClient.getChainId();
 
   // listening block number
   let fromBlock: bigint;
@@ -55,11 +56,16 @@ export async function openIntentListener({
       toBlock,
     });
 
-    console.log(`listening block ${fromBlock} to ${toBlock}`);
+    console.log(`[${chainId}] listening block ${fromBlock} to ${toBlock}`);
     if (logs.length) {
       const [openEvent] = logs;
-      const { orderId, maxSpent, fillInstructions, originChainId } =
-        openEvent.args.resolvedOrder!;
+      const {
+        orderId,
+        minReceived,
+        maxSpent,
+        fillInstructions,
+        originChainId,
+      } = openEvent.args.resolvedOrder!;
       const { originData } = fillInstructions[0];
       const {
         token, // token to send to destination (need to delete left zero padding)
@@ -68,8 +74,7 @@ export async function openIntentListener({
         recipient, // need this address to be approved (need to delete left zero padding)
       } = maxSpent[0];
 
-      console.log(openEvent);
-      await solver({
+      const solverParams: SolverParams = {
         orderId,
         token: bytes32ToAddress(token),
         amount,
@@ -78,12 +83,28 @@ export async function openIntentListener({
         originRouter: contractAddress,
         destRouter: bytes32ToAddress(recipient),
         originData,
+      };
+
+      console.log('Open event detected', {
+        orderId,
+        inToken: {
+          chainId: originChainId,
+          token: bytes32ToAddress(minReceived[0].token),
+          amount: minReceived[0].amount,
+        },
+        outToken: {
+          chainId: destChainId,
+          token: bytes32ToAddress(token),
+          amount,
+        },
       });
-    } else {
-      console.log('No Open Intent found');
+
+      await solver(solverParams);
     }
 
     fromBlock = toBlock;
+
+    await sleep(5000);
     currentBlockNumber = await publicClient.getBlockNumber();
   }
 }

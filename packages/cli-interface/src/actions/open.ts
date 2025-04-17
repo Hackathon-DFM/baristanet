@@ -27,6 +27,8 @@ import {
   OUTTOKEN_ADDRESS,
   RECIPIENT_ADDRESS,
   SENDER_PK,
+  ORIGIN_DOMAIN,
+  DESTINATION_DOMAIN,
 } from '../config';
 import routerAbi from '../abis/Hyperlane7683.json';
 
@@ -64,11 +66,11 @@ export const openIntent = async () => {
     recipient: RECIPIENT_ADDRESS as Address,
     inputToken: INTOKEN_ADDRESS as Address,
     outputToken: OUTTOKEN_ADDRESS as Address,
-    amountIn: BigInt(parseEther('100')),
-    amountOut: BigInt(parseEther('200')),
-    senderNonce: BigInt('17'),
-    originDomain: 421614,
-    destinationDomain: 84532,
+    amountIn: BigInt(parseEther('10')),
+    amountOut: BigInt(parseEther('20')),
+    senderNonce: BigInt('21'),
+    originDomain: ORIGIN_DOMAIN,
+    destinationDomain: DESTINATION_DOMAIN,
     destinationSettler: DESTINATION_ROUTER_ADDRESS as Address,
     fillDeadline: FILL_DEADLINE,
     data: '0x',

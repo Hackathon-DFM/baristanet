@@ -1,4 +1,10 @@
-import { fillIntent, openIntent, settleIntent, actorBalance } from './actions';
+import {
+  fillIntent,
+  openIntent,
+  settleIntent,
+  actorBalance,
+  openIntentOrderStatus,
+} from './actions';
 import minimist from 'minimist';
 
 const args = minimist(process.argv.slice(2));
@@ -8,11 +14,13 @@ async function main() {
   const isFill = args._.includes('fill');
   const isSettle = args._.includes('settle');
   const isBalance = args._.includes('balance');
+  const isStatus = args._.includes('status');
 
   if (isOpen) await openIntent();
   if (isFill) await fillIntent();
   if (isSettle) await settleIntent();
   if (isBalance) await actorBalance();
+  if (isStatus) await openIntentOrderStatus();
 }
 
 main();

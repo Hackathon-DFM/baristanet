@@ -1,17 +1,11 @@
+import { Address, erc20Abi, formatUnits, stringToHex } from 'viem';
 import {
-  Address,
-  createPublicClient,
-  createWalletClient,
-  erc20Abi,
-  formatUnits,
-  http,
-  stringToHex,
-  WalletClient,
-} from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { arbitrumSepolia, baseSepolia } from 'viem/chains';
-import { SOLVER_PK } from './config';
-import { addressToBytes32, sleep } from './utils';
+  addressToBytes32,
+  createClient,
+  sleep,
+  OrderStatus,
+  hexToOrderStatus,
+} from './utils';
 import routerAbi from './abis/Hyperlane7683.json';
 
 export type SolverParams = {
@@ -24,36 +18,6 @@ export type SolverParams = {
   originData: Address; // ABI-encoded blob (bytes)
   orderId: Address;
 };
-
-function createClient(chainId: bigint) {
-  let walletClient, publicClient;
-  const walletAccount = privateKeyToAccount(SOLVER_PK as Address);
-
-  if (chainId === 421614n) {
-    walletClient = createWalletClient({
-      account: walletAccount,
-      chain: arbitrumSepolia,
-      transport: http(),
-    });
-    publicClient = createPublicClient({
-      chain: arbitrumSepolia,
-      transport: http(),
-    });
-  } else if (chainId === 84532n) {
-    walletClient = createWalletClient({
-      account: walletAccount,
-      chain: baseSepolia,
-      transport: http(),
-    });
-    publicClient = createPublicClient({
-      chain: baseSepolia,
-      transport: http(),
-    });
-  } else {
-    throw new Error('chainId not found');
-  }
-  return { walletClient, publicClient, walletAccount };
-}
 
 export async function openIntentSolver({
   originChainId,
@@ -68,30 +32,12 @@ export async function openIntentSolver({
   const originClient = createClient(originChainId);
   const destClient = createClient(destChainId);
 
-  type OrderStatus = 'FILLED' | 'OPENED' | 'SETTLED' | 'UNKNOWN';
   const getOrderStatus = async (
     orderId: Address,
   ): Promise<{
     originOrderStatus: OrderStatus;
     destOrderStatus: OrderStatus;
   }> => {
-    const hexToOrderStatus = (orderStatusHex: Address): OrderStatus => {
-      const orderStatusMap = {
-        OPENED: stringToHex('OPENED', { size: 32 }),
-        FILLED: stringToHex('FILLED', { size: 32 }),
-        SETTLED: stringToHex('SETTLED', { size: 32 }),
-      };
-
-      let orderStatus: OrderStatus = 'UNKNOWN';
-      if (orderStatusHex === orderStatusMap.OPENED) {
-        orderStatus = 'OPENED';
-      } else if (orderStatusHex === orderStatusMap.FILLED) {
-        orderStatus = 'FILLED';
-      } else if (orderStatusHex === orderStatusMap.SETTLED) {
-        orderStatus = 'SETTLED';
-      }
-      return orderStatus;
-    };
     const originOrderStatusHex = (await originClient.publicClient.readContract({
       address: originRouter,
       abi: routerAbi,

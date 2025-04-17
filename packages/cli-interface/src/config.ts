@@ -47,3 +47,13 @@ export const DESTINATION_ROUTER_ADDRESS =
 if (!DESTINATION_ROUTER_ADDRESS) {
   throw new Error('DESTINATION_ROUTER_ADDRESS is required');
 }
+
+export const ORIGIN_DOMAIN = Number(process.env.ORIGIN_DOMAIN);
+if (!ORIGIN_DOMAIN) {
+  throw new Error('ORIGIN_DOMAIN is required');
+}
+
+export const DESTINATION_DOMAIN = Number(process.env.DESTINATION_DOMAIN);
+if (!DESTINATION_DOMAIN) {
+  throw new Error('DESTINATION_DOMAIN is required');
+}
