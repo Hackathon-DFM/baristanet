@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { ponder } from 'ponder:registry';
 import {
   solver,
   solverDeposit,
@@ -7,10 +7,10 @@ import {
   solverBorrow,
   transaction,
   solverDebt,
-} from "ponder:schema";
-import { Address } from "viem";
+} from 'ponder:schema';
+import { Address } from 'viem';
 
-ponder.on("BrewHouse:CollateralDeposited", async ({ event, context }) => {
+ponder.on('BrewHouse:CollateralDeposited', async ({ event, context }) => {
   // insert solver
   const solverFound = await context.db.find(solver, { id: event.args.user });
   if (!solverFound) {
@@ -37,13 +37,14 @@ ponder.on("BrewHouse:CollateralDeposited", async ({ event, context }) => {
   const transactionFound = await context.db.find(transaction, {
     id: txId,
   });
+  const timestamp = event.block.timestamp;
 
   if (!transactionFound) {
     await context.db.insert(transaction).values({
       id: txId,
       chainId: txChainId,
       hash: txHash as Address,
-      timestamp: BigInt(0),
+      timestamp: timestamp,
       solver: event.args.user,
     });
   }
@@ -59,7 +60,7 @@ ponder.on("BrewHouse:CollateralDeposited", async ({ event, context }) => {
   }
 });
 
-ponder.on("BrewHouse:CollateralWithdrawn", async ({ event, context }) => {
+ponder.on('BrewHouse:CollateralWithdrawn', async ({ event, context }) => {
   // insert solver
   const solverFound = await context.db.find(solver, { id: event.args.user });
   if (!solverFound) {
@@ -86,13 +87,14 @@ ponder.on("BrewHouse:CollateralWithdrawn", async ({ event, context }) => {
   const transactionFound = await context.db.find(transaction, {
     id: txId,
   });
+  const timestamp = event.block.timestamp;
 
   if (!transactionFound) {
     await context.db.insert(transaction).values({
       id: txId,
       chainId: txChainId,
       hash: txHash as Address,
-      timestamp: BigInt(0),
+      timestamp: timestamp,
       solver: event.args.user,
     });
   }
@@ -108,7 +110,7 @@ ponder.on("BrewHouse:CollateralWithdrawn", async ({ event, context }) => {
   }
 });
 
-ponder.on("LattePool1:Borrowed", async ({ event, context }) => {
+ponder.on('LattePool1:Borrowed', async ({ event, context }) => {
   // insert solver
   const solverFound = await context.db.find(solver, { id: event.args.user });
   if (!solverFound) {
@@ -134,13 +136,14 @@ ponder.on("LattePool1:Borrowed", async ({ event, context }) => {
   const transactionFound = await context.db.find(transaction, {
     id: txId,
   });
+  const timestamp = event.block.timestamp;
 
   if (!transactionFound) {
     await context.db.insert(transaction).values({
       id: txId,
       chainId: txChainId,
       hash: txHash as Address,
-      timestamp: BigInt(0),
+      timestamp: timestamp,
       solver: event.args.user,
     });
   }
@@ -174,7 +177,7 @@ ponder.on("LattePool1:Borrowed", async ({ event, context }) => {
   }
 });
 
-ponder.on("LattePool1:Repaid", async ({ event, context }) => {
+ponder.on('LattePool1:Repaid', async ({ event, context }) => {
   // insert solver
   const solverFound = await context.db.find(solver, { id: event.args.user });
   if (!solverFound) {
@@ -200,13 +203,14 @@ ponder.on("LattePool1:Repaid", async ({ event, context }) => {
   const transactionFound = await context.db.find(transaction, {
     id: txId,
   });
+  const timestamp = event.block.timestamp;
 
   if (!transactionFound) {
     await context.db.insert(transaction).values({
       id: txId,
       chainId: txChainId,
       hash: txHash as Address,
-      timestamp: BigInt(0),
+      timestamp: timestamp,
       solver: event.args.user,
     });
   }
@@ -242,7 +246,7 @@ ponder.on("LattePool1:Repaid", async ({ event, context }) => {
 
 //////////////
 
-ponder.on("LattePool2:Borrowed", async ({ event, context }) => {
+ponder.on('LattePool2:Borrowed', async ({ event, context }) => {
   // insert solver
   const solverFound = await context.db.find(solver, { id: event.args.user });
   if (!solverFound) {
@@ -268,13 +272,14 @@ ponder.on("LattePool2:Borrowed", async ({ event, context }) => {
   const transactionFound = await context.db.find(transaction, {
     id: txId,
   });
+  const timestamp = event.block.timestamp;
 
   if (!transactionFound) {
     await context.db.insert(transaction).values({
       id: txId,
       chainId: txChainId,
       hash: txHash as Address,
-      timestamp: BigInt(0),
+      timestamp: timestamp,
       solver: event.args.user,
     });
   }
@@ -308,7 +313,7 @@ ponder.on("LattePool2:Borrowed", async ({ event, context }) => {
   }
 });
 
-ponder.on("LattePool2:Repaid", async ({ event, context }) => {
+ponder.on('LattePool2:Repaid', async ({ event, context }) => {
   // insert solver
   const solverFound = await context.db.find(solver, { id: event.args.user });
   if (!solverFound) {
@@ -334,13 +339,14 @@ ponder.on("LattePool2:Repaid", async ({ event, context }) => {
   const transactionFound = await context.db.find(transaction, {
     id: txId,
   });
+  const timestamp = event.block.timestamp;
 
   if (!transactionFound) {
     await context.db.insert(transaction).values({
       id: txId,
       chainId: txChainId,
       hash: txHash as Address,
-      timestamp: BigInt(0),
+      timestamp: timestamp,
       solver: event.args.user,
     });
   }
@@ -373,4 +379,3 @@ ponder.on("LattePool2:Repaid", async ({ event, context }) => {
     });
   }
 });
-
