@@ -1,29 +1,29 @@
-import { db } from "ponder:api";
-import schema from "ponder:schema";
-import { Hono } from "hono";
-import { client, eq, graphql } from "ponder";
+import { db } from 'ponder:api';
+import schema from 'ponder:schema';
+import { Hono } from 'hono';
+import { client, eq, graphql } from 'ponder';
 import {
   Address,
   createWalletClient,
   encodePacked,
   http,
   keccak256,
-  checksumAddress
-} from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+  checksumAddress,
+} from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
 const app = new Hono();
 
-app.use("/sql/*", client({ db, schema }));
+app.use('/sql/*', client({ db, schema }));
 
-app.use("/", graphql({ db, schema }));
-app.use("/graphql", graphql({ db, schema }));
+app.use('/', graphql({ db, schema }));
+app.use('/graphql', graphql({ db, schema }));
 
 // normalize bigint json
 const normalizeJson = (obj: any) => {
   return JSON.parse(
     JSON.stringify(obj, (key, value) => {
-      if (typeof value === "bigint") {
+      if (typeof value === 'bigint') {
         return value.toString();
       }
       return value;
@@ -32,22 +32,27 @@ const normalizeJson = (obj: any) => {
 };
 
 // create signer
-const pk = process.env.SEQUENCER_PRIVATE_KEY ?? "0x0";
+const pk = process.env.SEQUENCER_PRIVATE_KEY ?? '0x0';
 const account = privateKeyToAccount(pk as Address);
 
-app.post("/withdraw", async (c) => {
+app.post('/withdraw', async (c) => {
   const body = await c.req.json();
 
-  const solver = body["solver"];
-  const amount = body["amount"];
-  const contractAddress = body["contractAddress"];
+  const solver = body['solver'];
+  const amount = body['amount'];
+  const contractAddress = body['contractAddress'];
 
   const deadline = Math.floor(Date.now() / 1000) + 3600;
 
   const rawMessage = keccak256(
     encodePacked(
-      ["address", "uint256", "uint256", "address"],
-      [solver, BigInt(amount), BigInt(deadline), contractAddress],
+      ['address', 'uint256', 'uint256', 'address'],
+      [
+        checksumAddress(solver),
+        BigInt(amount),
+        BigInt(deadline),
+        checksumAddress(contractAddress),
+      ],
     ),
   );
 
@@ -57,17 +62,19 @@ app.post("/withdraw", async (c) => {
     signature,
     sequencer: account.address,
     data: normalizeJson({
-      solver, amount, deadline
+      solver,
+      amount,
+      deadline,
     }),
   });
 });
 
-app.post("/borrow", async (c) => {
+app.post('/borrow', async (c) => {
   const body = await c.req.json();
 
-  const solver = body["solver"];
-  const amount = body["amount"];
-  const contractAddress = body["contractAddress"];
+  const solver = body['solver'];
+  const amount = body['amount'];
+  const contractAddress = body['contractAddress'];
 
   const deadline = Math.floor(Date.now() / 1000) + 3600;
 
@@ -78,7 +85,7 @@ app.post("/borrow", async (c) => {
 
   const rawMessage = keccak256(
     encodePacked(
-      ["address", "uint256", "uint256", "uint256", "address"],
+      ['address', 'uint256', 'uint256', 'uint256', 'address'],
       [
         checksumAddress(solver),
         BigInt(amount),
@@ -104,12 +111,12 @@ app.post("/borrow", async (c) => {
   });
 });
 
-app.post("/repay", async (c) => {
+app.post('/repay', async (c) => {
   const body = await c.req.json();
 
-  const solver = body["solver"];
-  const amount = body["amount"];
-  const contractAddress = body["contractAddress"];
+  const solver = body['solver'];
+  const amount = body['amount'];
+  const contractAddress = body['contractAddress'];
 
   const deadline = Math.floor(Date.now() / 1000) + 3600;
 
@@ -120,13 +127,13 @@ app.post("/repay", async (c) => {
 
   const rawMessage = keccak256(
     encodePacked(
-      ["address", "uint256", "uint256", "uint256", "address"],
+      ['address', 'uint256', 'uint256', 'uint256', 'address'],
       [
-        solver,
+        checksumAddress(solver),
         BigInt(amount),
         BigInt(currentDebt),
         BigInt(deadline),
-        contractAddress,
+        checksumAddress(contractAddress),
       ],
     ),
   );
@@ -136,6 +143,7 @@ app.post("/repay", async (c) => {
   return c.json({
     signature,
     sequencer: account.address,
+    contractAddress: checksumAddress(contractAddress),
     data: normalizeJson({
       solver,
       amount,
@@ -145,15 +153,15 @@ app.post("/repay", async (c) => {
   });
 });
 
-app.get("/solvers", async (c) => {
+app.get('/solvers', async (c) => {
   // get all solvers with their collateral and debts total
   const solvers = await db.query.solver.findMany();
   const solversNormalized = normalizeJson(solvers);
   return c.json(solversNormalized);
 });
 
-app.get("/solvers/:id", async (c) => {
-  const idInParams = c.req.param("id").toString();
+app.get('/solvers/:id', async (c) => {
+  const idInParams = c.req.param('id').toString();
   const solverData = await db.query.solver.findFirst({
     where: eq(schema.solver.id, idInParams as Address),
     with: {
