@@ -1,14 +1,14 @@
-import { onchainTable, relations } from "ponder";
+import { onchainTable, relations } from 'ponder';
 
 // ------------------------ entity ------------------------ //
 
-export const solver = onchainTable("solver", (t) => ({
+export const solver = onchainTable('solver', (t) => ({
   id: t.hex().primaryKey(),
   collateralBalance: t.bigint(),
   debtBalance: t.bigint(),
 }));
 
-export const transaction = onchainTable("transaction", (t) => ({
+export const transaction = onchainTable('transaction', (t) => ({
   id: t.text().primaryKey(),
   chainId: t.varchar(),
   hash: t.hex(),
@@ -16,37 +16,37 @@ export const transaction = onchainTable("transaction", (t) => ({
   solver: t.hex(),
 }));
 
-export const solverDeposit = onchainTable("solverDeposit", (t) => ({
+export const solverDeposit = onchainTable('solverDeposit', (t) => ({
   id: t.text().primaryKey(),
   solver: t.hex(),
   amount: t.bigint(),
 }));
 
-export const solverWithdraw = onchainTable("solverWithdraw", (t) => ({
+export const solverWithdraw = onchainTable('solverWithdraw', (t) => ({
   id: t.text().primaryKey(),
   solver: t.hex(),
   amount: t.bigint(),
 }));
 
-export const solverBorrow = onchainTable("solverBorrow", (t) => ({
+export const solverBorrow = onchainTable('solverBorrow', (t) => ({
   id: t.text().primaryKey(),
   solver: t.hex(),
   amount: t.bigint(),
 }));
 
-export const solverRepay = onchainTable("solverRepay", (t) => ({
+export const solverRepay = onchainTable('solverRepay', (t) => ({
   id: t.text().primaryKey(),
   solver: t.hex(),
   amount: t.bigint(),
 }));
 
-export const solverSlash = onchainTable("solverSlash", (t) => ({
+export const solverSlash = onchainTable('solverSlash', (t) => ({
   id: t.text().primaryKey(),
   solver: t.hex(),
   amount: t.bigint(),
 }));
 
-export const solverDebt = onchainTable("solverDebt", (t) => ({
+export const solverDebt = onchainTable('solverDebt', (t) => ({
   id: t.text().primaryKey(),
   solver: t.hex(),
   chainId: t.varchar(),
