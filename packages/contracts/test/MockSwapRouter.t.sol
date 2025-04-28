@@ -7,39 +7,42 @@ import "../src/MockToken.sol";
 
 contract MockSwapRouterTest is Test {
   MockSwapRouter public swapRouter;
-  MockToken public tokenIn;
-  MockToken public tokenOut;
+  MockToken public tokenA;
+  MockToken public tokenB;
   address public user = address(1);
 
   function setUp() public {
     swapRouter = new MockSwapRouter();
-    tokenIn = new MockToken("TIN", 18);
-    tokenOut = new MockToken("TOUT", 18);
+    tokenA = new MockToken("TokenA", 18);
+    tokenB = new MockToken("TokenB", 18);
 
-    // Mint tokens to user and router
-    tokenIn.mint(user, 1_000 ether);
-    tokenOut.mint(address(swapRouter), 1_000 ether);
+    // Mint tokens
+    tokenA.mint(user, 1_000 ether);
+    tokenB.mint(address(swapRouter), 1_000 ether);
 
-    // Label addresses for better trace output
+    // Provide ETH to user
+    vm.deal(user, 1_000 ether);
+    vm.deal(address(swapRouter), 1_000 ether);
+
+    // Label for clarity
     vm.label(user, "User");
-    vm.label(address(tokenIn), "TokenIn");
-    vm.label(address(tokenOut), "TokenOut");
+    vm.label(address(tokenA), "TokenA");
+    vm.label(address(tokenB), "TokenB");
   }
 
-  function testExactInputSingle() public {
+  // -------- token -> token --------
+  function testExactInputSingle_TokenToToken() public {
     vm.startPrank(user);
 
     uint256 amountIn = 100 ether;
     uint256 amountOutMinimum = 200 ether;
 
-    // Approve router to spend user's tokenIn
-    tokenIn.approve(address(swapRouter), amountIn);
+    tokenA.approve(address(swapRouter), amountIn);
 
-    // Perform exactInputSingle swap
     uint256 amountOut = swapRouter.exactInputSingle(
       MockSwapRouter.ExactInputSingleParams({
-        tokenIn: address(tokenIn),
-        tokenOut: address(tokenOut),
+        tokenIn: address(tokenA),
+        tokenOut: address(tokenB),
         fee: 0,
         recipient: user,
         deadline: block.timestamp + 1 hours,
@@ -49,35 +52,33 @@ contract MockSwapRouterTest is Test {
       })
     );
 
-    assertEq(amountOut, amountOutMinimum, "Incorrect amountOut returned");
+    assertEq(amountOut, amountOutMinimum, "Incorrect amountOut");
     assertEq(
-      tokenOut.balanceOf(user),
+      tokenB.balanceOf(user),
       amountOutMinimum,
-      "User did not receive correct tokenOut"
+      "Incorrect tokenB balance"
     );
     assertEq(
-      tokenIn.balanceOf(user),
+      tokenA.balanceOf(user),
       1_000 ether - amountIn,
-      "User tokenIn balance incorrect"
+      "Incorrect tokenA balance"
     );
 
     vm.stopPrank();
   }
 
-  function testExactOutputSingle() public {
+  function testExactOutputSingle_TokenToToken() public {
     vm.startPrank(user);
 
+    uint256 amountOut = 200 ether;
     uint256 amountInMaximum = 100 ether;
-    uint256 amountOut = 50 ether;
 
-    // Approve router to spend user's tokenIn
-    tokenIn.approve(address(swapRouter), amountInMaximum);
+    tokenA.approve(address(swapRouter), amountInMaximum);
 
-    // Perform exactOutputSingle swap
     uint256 amountIn = swapRouter.exactOutputSingle(
       MockSwapRouter.ExactOutputSingleParams({
-        tokenIn: address(tokenIn),
-        tokenOut: address(tokenOut),
+        tokenIn: address(tokenA),
+        tokenOut: address(tokenB),
         fee: 0,
         recipient: user,
         deadline: block.timestamp + 1 hours,
@@ -87,17 +88,151 @@ contract MockSwapRouterTest is Test {
       })
     );
 
-    assertEq(amountIn, amountInMaximum, "Incorrect amountIn returned");
+    assertEq(amountIn, amountInMaximum, "Incorrect amountIn");
+    assertEq(tokenB.balanceOf(user), amountOut, "Incorrect tokenB balance");
     assertEq(
-      tokenOut.balanceOf(user),
-      amountOut,
-      "User did not receive correct tokenOut"
-    );
-    assertEq(
-      tokenIn.balanceOf(user),
+      tokenA.balanceOf(user),
       1_000 ether - amountInMaximum,
-      "User tokenIn balance incorrect"
+      "Incorrect tokenA balance"
     );
+
+    vm.stopPrank();
+  }
+
+  // -------- token -> ETH --------
+  function testExactInputSingle_TokenToETH() public {
+    vm.startPrank(user);
+
+    uint256 amountIn = 1 ether;
+    uint256 amountOutMinimum = 2 ether;
+
+    tokenA.approve(address(swapRouter), amountIn);
+
+    uint256 userEthBefore = user.balance;
+
+    uint256 amountOut = swapRouter.exactInputSingle(
+      MockSwapRouter.ExactInputSingleParams({
+        tokenIn: address(tokenA),
+        tokenOut: address(0), // ETH out
+        fee: 0,
+        recipient: user,
+        deadline: block.timestamp + 1 hours,
+        amountIn: amountIn,
+        amountOutMinimum: amountOutMinimum,
+        sqrtPriceLimitX96: 0
+      })
+    );
+
+    assertEq(amountOut, amountOutMinimum, "Incorrect amountOut");
+    assertEq(
+      user.balance,
+      userEthBefore + amountOutMinimum,
+      "Incorrect ETH balance"
+    );
+    assertEq(
+      tokenA.balanceOf(user),
+      1_000 ether - amountIn,
+      "Incorrect tokenA balance"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testExactOutputSingle_TokenToETH() public {
+    vm.startPrank(user);
+
+    uint256 amountOut = 2 ether;
+    uint256 amountInMaximum = 1 ether;
+
+    tokenA.approve(address(swapRouter), amountInMaximum);
+
+    uint256 userEthBefore = user.balance;
+
+    uint256 amountIn = swapRouter.exactOutputSingle(
+      MockSwapRouter.ExactOutputSingleParams({
+        tokenIn: address(tokenA),
+        tokenOut: address(0), // ETH out
+        fee: 0,
+        recipient: user,
+        deadline: block.timestamp + 1 hours,
+        amountOut: amountOut,
+        amountInMaximum: amountInMaximum,
+        sqrtPriceLimitX96: 0
+      })
+    );
+
+    assertEq(amountIn, amountInMaximum, "Incorrect amountIn");
+    assertEq(user.balance, userEthBefore + amountOut, "Incorrect ETH balance");
+    assertEq(
+      tokenA.balanceOf(user),
+      1_000 ether - amountInMaximum,
+      "Incorrect tokenA balance"
+    );
+
+    vm.stopPrank();
+  }
+
+  // -------- ETH -> token --------
+  function testExactInputSingle_ETHToToken() public {
+    vm.startPrank(user);
+
+    uint256 amountIn = 1 ether;
+    uint256 amountOutMinimum = 2 ether;
+
+    uint256 userEthBefore = user.balance;
+
+    uint256 amountOut = swapRouter.exactInputSingle{value: amountIn}(
+      MockSwapRouter.ExactInputSingleParams({
+        tokenIn: address(0), // ETH in
+        tokenOut: address(tokenB),
+        fee: 0,
+        recipient: user,
+        deadline: block.timestamp + 1 hours,
+        amountIn: amountIn,
+        amountOutMinimum: amountOutMinimum,
+        sqrtPriceLimitX96: 0
+      })
+    );
+
+    assertEq(amountOut, amountOutMinimum, "Incorrect amountOut");
+    assertEq(user.balance, userEthBefore - amountIn, "Incorrect ETH balance");
+    assertEq(
+      tokenB.balanceOf(user),
+      amountOutMinimum,
+      "Incorrect tokenB balance"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testExactOutputSingle_ETHToToken() public {
+    vm.startPrank(user);
+
+    uint256 amountOut = 2 ether;
+    uint256 amountInMaximum = 1 ether;
+
+    uint256 userEthBefore = user.balance;
+
+    uint256 amountIn = swapRouter.exactOutputSingle{value: amountInMaximum}(
+      MockSwapRouter.ExactOutputSingleParams({
+        tokenIn: address(0), // ETH in
+        tokenOut: address(tokenB),
+        fee: 0,
+        recipient: user,
+        deadline: block.timestamp + 1 hours,
+        amountOut: amountOut,
+        amountInMaximum: amountInMaximum,
+        sqrtPriceLimitX96: 0
+      })
+    );
+
+    assertEq(amountIn, amountInMaximum, "Incorrect amountIn");
+    assertEq(
+      user.balance,
+      userEthBefore - amountInMaximum,
+      "Incorrect ETH balance"
+    );
+    assertEq(tokenB.balanceOf(user), amountOut, "Incorrect tokenB balance");
 
     vm.stopPrank();
   }
