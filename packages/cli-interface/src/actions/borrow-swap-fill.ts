@@ -19,7 +19,9 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import { arbitrumSepolia, baseSepolia } from 'viem/chains';
 import {
+  DESTINATION_LATTEPOOL_ADDRESS,
   DESTINATION_ROUTER_ADDRESS,
+  DESTINATION_SWAPROUTER_ADDRESS,
   ORIGIN_ROUTER_ADDRESS,
   OUTTOKEN_ADDRESS,
   SOLVER_PK,
@@ -119,12 +121,12 @@ export const borrowSwapFillIntent = async () => {
       deadline: string;
     };
   };
-  const BORROW_AMOUNT = '0.01';
+  const BORROW_AMOUNT = '0.001';
 
   const borrowRequest: BorrowRequest = {
     solver: walletAccount.address,
     amount: parseEther(BORROW_AMOUNT).toString(),
-    contractAddress: ORIGIN_ROUTER_ADDRESS as Address,
+    contractAddress: DESTINATION_LATTEPOOL_ADDRESS as Address,
   };
 
   const borrowResponse = await fetch('http://127.0.0.1:42069/borrow', {
@@ -162,9 +164,8 @@ export const borrowSwapFillIntent = async () => {
 
   // swap eth to token
 
-  const SWAP_ROUTER_ADDRESS = '0x6bd05d17c093698e92622badc9a4e5b3900f76cc';
   const swapTxHash = await walletClient.writeContract({
-    address: SWAP_ROUTER_ADDRESS,
+    address: DESTINATION_SWAPROUTER_ADDRESS as Address,
     abi: MockSwapRouterAbi,
     functionName: 'exactOutputSingle',
     args: [
@@ -179,6 +180,7 @@ export const borrowSwapFillIntent = async () => {
         sqrtPriceLimitX96: BigInt(0),
       },
     ],
+    value: BigInt(borrowData.data.amount),
   });
   console.log('swapTxHash', swapTxHash);
 

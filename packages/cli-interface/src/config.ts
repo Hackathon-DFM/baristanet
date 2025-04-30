@@ -48,6 +48,28 @@ if (!DESTINATION_ROUTER_ADDRESS) {
   throw new Error('DESTINATION_ROUTER_ADDRESS is required');
 }
 
+export const ORIGIN_LATTEPOOL_ADDRESS = process.env.ORIGIN_LATTEPOOL_ADDRESS;
+if (!ORIGIN_LATTEPOOL_ADDRESS) {
+  throw new Error('ORIGIN_LATTEPOOL_ADDRESS is required');
+}
+
+export const DESTINATION_LATTEPOOL_ADDRESS =
+  process.env.DESTINATION_LATTEPOOL_ADDRESS;
+if (!DESTINATION_LATTEPOOL_ADDRESS) {
+  throw new Error('DESTINATION_LATTEPOOL_ADDRESS is required');
+}
+
+export const ORIGIN_SWAPROUTER_ADDRESS = process.env.ORIGIN_SWAPROUTER_ADDRESS;
+if (!ORIGIN_SWAPROUTER_ADDRESS) {
+  throw new Error('ORIGIN_SWAPROUTER_ADDRESS is required');
+}
+
+export const DESTINATION_SWAPROUTER_ADDRESS =
+  process.env.DESTINATION_SWAPROUTER_ADDRESS;
+if (!DESTINATION_SWAPROUTER_ADDRESS) {
+  throw new Error('DESTINATION_SWAPROUTER_ADDRESS is required');
+}
+
 export const ORIGIN_DOMAIN = Number(process.env.ORIGIN_DOMAIN);
 if (!ORIGIN_DOMAIN) {
   throw new Error('ORIGIN_DOMAIN is required');
