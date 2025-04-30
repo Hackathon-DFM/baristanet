@@ -17,8 +17,18 @@ export default createConfig({
       chainId: 84532,
       transport: http('https://base-sepolia-rpc.publicnode.com'),
     },
+    pharos: {
+      chainId: 50002,
+      transport: http('https://devnet.dplabs-internal.com'),
+    },
   },
   contracts: {
+    // BrewHouse: {
+    //   network: 'pharos',
+    //   abi: BrewHouseAbi,
+    //   address: '0xffe5d16f77912d8dab047a1e0346944573f3d15b',
+    //   startBlock: 18572555,
+    // },
     BrewHouse: {
       network: 'optimism',
       abi: BrewHouseAbi,

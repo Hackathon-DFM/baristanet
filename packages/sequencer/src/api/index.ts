@@ -176,6 +176,17 @@ app.get('/solvers/:id', async (c) => {
       },
     },
   });
+
+  if (!solverData) {
+    return c.json({
+      id: idInParams,
+      collateralBalance: '0',
+      debtBalance: '0',
+      debts: [],
+      transactions: [],
+    });
+  }
+
   const solverDataNormalized = normalizeJson(solverData);
   return c.json(solverDataNormalized);
 });

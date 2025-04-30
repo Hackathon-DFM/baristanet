@@ -61,6 +61,8 @@ const approveToken = async (
 
 export const openIntent = async () => {
   // swap 8 FOO to 11 BAR
+  const { timestamp } = await publicClient.getBlock();
+
   const rawOrderData: OrderData = {
     sender: walletAccount.address,
     recipient: RECIPIENT_ADDRESS as Address,
@@ -68,7 +70,7 @@ export const openIntent = async () => {
     outputToken: OUTTOKEN_ADDRESS as Address,
     amountIn: BigInt(parseEther('10')),
     amountOut: BigInt(parseEther('20')),
-    senderNonce: BigInt('21'),
+    senderNonce: timestamp,
     originDomain: ORIGIN_DOMAIN,
     destinationDomain: DESTINATION_DOMAIN,
     destinationSettler: DESTINATION_ROUTER_ADDRESS as Address,

@@ -4,6 +4,7 @@ import {
   settleIntent,
   actorBalance,
   openIntentOrderStatus,
+  borrowSwapFillIntent,
 } from './actions';
 import minimist from 'minimist';
 
@@ -15,12 +16,14 @@ async function main() {
   const isSettle = args._.includes('settle');
   const isBalance = args._.includes('balance');
   const isStatus = args._.includes('status');
+  const isBorrowSwapFill = args._.includes('borrow-swap-fill');
 
   if (isOpen) await openIntent();
   if (isFill) await fillIntent();
   if (isSettle) await settleIntent();
   if (isBalance) await actorBalance();
   if (isStatus) await openIntentOrderStatus();
+  if (isBorrowSwapFill) await borrowSwapFillIntent();
 }
 
 main();
