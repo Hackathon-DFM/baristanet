@@ -1,12 +1,27 @@
-import { Address, erc20Abi, formatUnits, stringToHex } from 'viem';
+import {
+  Address,
+  erc20Abi,
+  formatUnits,
+  maxUint256,
+  parseEther,
+  stringToHex,
+  zeroAddress,
+} from 'viem';
 import {
   addressToBytes32,
   createClient,
   sleep,
   OrderStatus,
   hexToOrderStatus,
+  jsonStringifyBigInt,
 } from './utils';
 import routerAbi from './abis/Hyperlane7683.json';
+import { LattePoolAbi } from './abis/LattePoolAbi';
+import { MockSwapRouterAbi } from './abis/MockSwapRouterAbi';
+import {
+  DESTINATION_LATTEPOOL_ADDRESS,
+  DESTINATION_SWAPROUTER_ADDRESS,
+} from './config';
 
 export type SolverParams = {
   originChainId: bigint;
@@ -64,6 +79,91 @@ export async function openIntentSolver({
     orderStatus.originOrderStatus === 'OPENED' &&
     orderStatus.destOrderStatus !== 'FILLED'
   ) {
+    // borrow eth from baristanet
+
+    // ----- (a) get signature from API -----
+
+    type BorrowRequest = {
+      solver: string;
+      amount: string;
+      contractAddress: string;
+    };
+    type BorrowResponse = {
+      signature: string;
+      sequencer: string;
+      contractAddress: string;
+      data: {
+        solver: string;
+        amount: string;
+        maxDebt: string;
+        deadline: string;
+      };
+    };
+    const BORROW_AMOUNT = '0.001';
+
+    const borrowRequest: BorrowRequest = {
+      solver: destClient.walletAccount.address,
+      amount: parseEther(BORROW_AMOUNT).toString(),
+      contractAddress: DESTINATION_LATTEPOOL_ADDRESS as Address,
+    };
+
+    const borrowResponse = await fetch('https://baristenet-sequencer.fly.dev/borrow', {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonStringifyBigInt(borrowRequest),
+    });
+
+    if (!borrowResponse.ok) {
+      throw new Error(`HTTP error! status: ${borrowResponse.status}`);
+    }
+
+    const borrowData = (await borrowResponse.json()) as BorrowResponse;
+    console.log('borrowData', borrowData);
+
+    // ----- (b) borrow from contract -----
+
+    const borrowTxHash = await destClient.walletClient.writeContract({
+      address: borrowData.contractAddress as Address,
+      abi: LattePoolAbi,
+      functionName: 'borrowWithSig',
+      args: [
+        BigInt(borrowData.data.amount),
+        BigInt(borrowData.data.maxDebt),
+        BigInt(borrowData.data.deadline),
+        borrowData.signature as Address,
+      ],
+    });
+    console.log('borrowTxHash', borrowTxHash);
+
+    await sleep(4000);
+
+    // swap eth to token
+
+    const swapTxHash = await destClient.walletClient.writeContract({
+      address: DESTINATION_SWAPROUTER_ADDRESS as Address,
+      abi: MockSwapRouterAbi,
+      functionName: 'exactOutputSingle',
+      args: [
+        {
+          tokenIn: zeroAddress,
+          tokenOut: token,
+          fee: 0,
+          recipient: destClient.walletAccount.address,
+          deadline: maxUint256,
+          amountOut: amount,
+          amountInMaximum: BigInt(borrowData.data.amount),
+          sqrtPriceLimitX96: BigInt(0),
+        },
+      ],
+      value: BigInt(borrowData.data.amount),
+    });
+    console.log('swapTxHash', swapTxHash);
+
+    await sleep(4000);
+
     // APPROVE
     const approveTxHash = await destClient.walletClient.writeContract({
       address: token,
@@ -74,7 +174,7 @@ export async function openIntentSolver({
 
     console.log('approve txHash', approveTxHash);
 
-    await sleep(2000);
+    await sleep(4000);
 
     // CHECK TOKEN BALANCE
 
@@ -101,7 +201,7 @@ export async function openIntentSolver({
     });
     console.log('fill txHash', fillTxHash);
 
-    await sleep(2000);
+    await sleep(4000);
   } else {
     console.log('order already filled');
   }
@@ -133,7 +233,7 @@ export async function openIntentSolver({
 
     // SETTLE
 
-    await sleep(2000);
+    await sleep(4000);
 
     const txHash = await destClient.walletClient.writeContract({
       address: destRouter as Address,

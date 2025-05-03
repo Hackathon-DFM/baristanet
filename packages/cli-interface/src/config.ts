@@ -79,3 +79,8 @@ export const DESTINATION_DOMAIN = Number(process.env.DESTINATION_DOMAIN);
 if (!DESTINATION_DOMAIN) {
   throw new Error('DESTINATION_DOMAIN is required');
 }
+
+export const SEQUENCER_API_URL = process.env.SEQUENCER_API_URL;
+if (!SEQUENCER_API_URL) {
+  throw new Error('SEQUENCER_API_URL is required');
+}

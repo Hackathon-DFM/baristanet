@@ -24,6 +24,7 @@ import {
   DESTINATION_SWAPROUTER_ADDRESS,
   ORIGIN_ROUTER_ADDRESS,
   OUTTOKEN_ADDRESS,
+  SEQUENCER_API_URL,
   SOLVER_PK,
 } from '../config';
 import routerAbi from '../abis/Hyperlane7683.json';
@@ -129,7 +130,7 @@ export const borrowSwapFillIntent = async () => {
     contractAddress: DESTINATION_LATTEPOOL_ADDRESS as Address,
   };
 
-  const borrowResponse = await fetch('http://127.0.0.1:42069/borrow', {
+  const borrowResponse = await fetch(`https://baristenet-sequencer.fly.dev/borrow`, {
     method: 'POST',
     headers: {
       accept: 'application/json',
@@ -160,7 +161,7 @@ export const borrowSwapFillIntent = async () => {
   });
   console.log('borrowTxHash', borrowTxHash);
 
-  await sleep(2000);
+  await sleep(4000);
 
   // swap eth to token
 
@@ -184,7 +185,7 @@ export const borrowSwapFillIntent = async () => {
   });
   console.log('swapTxHash', swapTxHash);
 
-  await sleep(2000);
+  await sleep(4000);
 
   // approve token to be sent when filling
 
@@ -195,7 +196,7 @@ export const borrowSwapFillIntent = async () => {
   );
   console.log('approvalTxHash', approvalTxHash);
 
-  await sleep(2000);
+  await sleep(4000);
 
   // filling
 
