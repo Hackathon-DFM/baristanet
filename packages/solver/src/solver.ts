@@ -107,7 +107,7 @@ export async function openIntentSolver({
       contractAddress: DESTINATION_LATTEPOOL_ADDRESS as Address,
     };
 
-    const borrowResponse = await fetch('http://127.0.0.1:42069/borrow', {
+    const borrowResponse = await fetch('https://baristenet-sequencer.fly.dev/borrow', {
       method: 'POST',
       headers: {
         accept: 'application/json',

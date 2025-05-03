@@ -9,8 +9,10 @@ import {
   http,
   keccak256,
   checksumAddress,
+  createPublicClient,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+import { anvil } from 'viem/chains';
 
 const app = new Hono();
 
@@ -18,6 +20,23 @@ app.use('/sql/*', client({ db, schema }));
 
 app.use('/', graphql({ db, schema }));
 app.use('/graphql', graphql({ db, schema }));
+
+const pharosClient = createPublicClient({
+  chain: anvil,
+  transport: http('https://devnet.dplabs-internal.com'),
+});
+
+app.get('/check', async (c) => {
+  // get block number
+  try {
+    const blockNumber = await pharosClient.getBlockNumber();
+    return c.json(normalizeJson({
+      blockNumber,
+    }));
+  } catch (e) {
+    return c.json({ error: 'Error connecting to pharos' });
+  }
+});
 
 // normalize bigint json
 const normalizeJson = (obj: any) => {
