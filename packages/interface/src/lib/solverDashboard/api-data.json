@@ -1,0 +1,66 @@
+{
+  "id": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+  "collateralBalance": "100000000000000000",
+  "debtBalance": "30000000000000000",
+  "debts": [
+    {
+      "id": "84532-0x8f486D1580A397610DaBD13De911c51D46455A9a",
+      "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+      "chainId": "84532",
+      "amount": "10000000000000000"
+    },
+    {
+      "id": "421614-0x8f486D1580A397610DaBD13De911c51D46455A9a",
+      "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+      "chainId": "421614",
+      "amount": "20000000000000000"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "11155420-0xb29a8eda71867afbd4d86a3ca94c358920aeb7bb7e4e112f29b0d238c353a384",
+      "chainId": "11155420",
+      "hash": "0xb29a8eda71867afbd4d86a3ca94c358920aeb7bb7e4e112f29b0d238c353a384",
+      "timestamp": "0",
+      "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+      "deposit": {
+        "id": "11155420-0xb29a8eda71867afbd4d86a3ca94c358920aeb7bb7e4e112f29b0d238c353a384",
+        "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+        "amount": "100000000000000000"
+      },
+      "withdraw": null,
+      "borrow": null,
+      "repay": null
+    },
+    {
+      "id": "84532-0x64f3e61e31ef71b2ceef4b8f8359608d70cd337d7778ce32767531a4f1da1632",
+      "chainId": "84532",
+      "hash": "0x64f3e61e31ef71b2ceef4b8f8359608d70cd337d7778ce32767531a4f1da1632",
+      "timestamp": "0",
+      "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+      "deposit": null,
+      "withdraw": null,
+      "borrow": {
+        "id": "84532-0x64f3e61e31ef71b2ceef4b8f8359608d70cd337d7778ce32767531a4f1da1632",
+        "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+        "amount": "10000000000000000"
+      },
+      "repay": null
+    },
+    {
+      "id": "421614-0x5177c613ea52864b117f3ab16989c3aace7dfda93f3fb69f22e3d02653ffdbc3",
+      "chainId": "421614",
+      "hash": "0x5177c613ea52864b117f3ab16989c3aace7dfda93f3fb69f22e3d02653ffdbc3",
+      "timestamp": "0",
+      "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+      "deposit": null,
+      "withdraw": null,
+      "borrow": {
+        "id": "421614-0x5177c613ea52864b117f3ab16989c3aace7dfda93f3fb69f22e3d02653ffdbc3",
+        "solver": "0x8f486d1580a397610dabd13de911c51d46455a9a",
+        "amount": "20000000000000000"
+      },
+      "repay": null
+    }
+  ]
+}
