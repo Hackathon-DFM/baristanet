@@ -7,24 +7,24 @@ import {
   http,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { arbitrumSepolia, baseSepolia } from 'viem/chains';
+import { liskSepolia, arbitrumSepolia } from 'viem/chains';
 import { DESTINATION_ROUTER_ADDRESS, SOLVER_PK } from '../config';
 import routerAbi from '../abis/Hyperlane7683.json';
 
 const walletAccount = privateKeyToAccount(SOLVER_PK as Address);
 const walletClient = createWalletClient({
   account: walletAccount,
-  chain: baseSepolia,
-  transport: http(),
-});
-
-const publicClientOrigin = createPublicClient({
   chain: arbitrumSepolia,
   transport: http(),
 });
 
+const publicClientOrigin = createPublicClient({
+  chain: liskSepolia,
+  transport: http(),
+});
+
 const publicClientDestination = createPublicClient({
-  chain: baseSepolia,
+  chain: arbitrumSepolia,
   transport: http(),
 });
 

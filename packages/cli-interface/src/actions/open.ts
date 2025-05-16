@@ -17,9 +17,10 @@ import {
   erc20Abi,
   maxUint256,
   parseEther,
+  parseUnits,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { arbitrumSepolia } from 'viem/chains';
+import { liskSepolia } from 'viem/chains';
 import {
   DESTINATION_ROUTER_ADDRESS,
   INTOKEN_ADDRESS,
@@ -35,12 +36,12 @@ import routerAbi from '../abis/Hyperlane7683.json';
 const walletAccount = privateKeyToAccount(SENDER_PK as Address);
 const walletClient = createWalletClient({
   account: walletAccount,
-  chain: arbitrumSepolia,
+  chain: liskSepolia,
   transport: http(),
 });
 
 const publicClient = createPublicClient({
-  chain: arbitrumSepolia,
+  chain: liskSepolia,
   transport: http(),
 });
 
@@ -68,7 +69,7 @@ export const openIntent = async () => {
     recipient: RECIPIENT_ADDRESS as Address,
     inputToken: INTOKEN_ADDRESS as Address,
     outputToken: OUTTOKEN_ADDRESS as Address,
-    amountIn: BigInt(parseEther('10')),
+    amountIn: BigInt(parseUnits('10', 2)),
     amountOut: BigInt(parseEther('20')),
     senderNonce: timestamp,
     originDomain: ORIGIN_DOMAIN,
@@ -122,7 +123,7 @@ export const openIntent = async () => {
   );
   console.log('approvalTxHash', approvalTxHash);
 
-  await sleep(2000);
+  await sleep(4000);
 
   const txHash = await walletClient.writeContract({
     address: ORIGIN_ROUTER_ADDRESS as Address,
